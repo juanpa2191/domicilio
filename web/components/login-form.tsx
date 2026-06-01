@@ -12,36 +12,51 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { getUserSurface } from "@/lib/domicilios/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+
+const SURFACE_PATHS = {
+  admin: "/admin",
+  mostrador: "/mostrador",
+  cocina: "/cocina",
+  cliente: "/cliente",
+} as const;
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [showComercioForm, setShowComercioForm] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleComercioLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
-    setError(null);
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected");
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      if (!data.user) throw new Error("No se pudo obtener la sesión.");
+
+      const surface = await getUserSurface(supabase, data.user.id);
+      router.push(SURFACE_PATHS[surface]);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No pudimos iniciar tu sesión. Revisa tus datos."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -51,58 +66,77 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Iniciar sesión</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Entra con tu cuenta de Google. Si eres parte de un Comercio,
+            usa tu cuenta de empleado.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
-              </Button>
+          <div className="flex flex-col gap-4">
+            <GoogleSignInButton className="w-full" />
+
+            <div className="relative my-2">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                o
+              </span>
             </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/sign-up"
-                className="underline underline-offset-4"
+
+            {!showComercioForm ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-sm"
+                onClick={() => setShowComercioForm(true)}
               >
-                Sign up
-              </Link>
-            </div>
-          </form>
+                Soy parte de un Comercio (entrar con email)
+              </Button>
+            ) : (
+              <form onSubmit={handleComercioLogin} className="flex flex-col gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="don.luis@restaurante.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Contraseña</Label>
+                    <Link
+                      href="/auth/forgot-password"
+                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Entrando..." : "Entrar"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowComercioForm(false)}
+                >
+                  Volver
+                </Button>
+              </form>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

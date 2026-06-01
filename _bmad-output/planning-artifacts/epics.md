@@ -463,38 +463,35 @@ So that **tengo sus datos a mano para coordinar entregas (sin app del Domiciliar
 
 El Cliente se registra/inicia sesión con OTP por SMS (LabsMobile primario, Twilio fallback), navega los Comercios disponibles en Barbosa, arma su Pedido con productos + Adiciones Estructuradas + Adición Libre, elige Modalidad (domicilio o pickup), confirma con forma de pago y sube comprobante de transferencia (o confirma efectivo).
 
-### Story 3.1: Abstracción lib/sms con LabsMobile + Twilio fallback
+### Story 3.1: ~~Abstracción lib/sms~~ → DIFERIDA a Fase 2 (D-21)
 
-As a **desarrollador**,
-I want **una abstracción `lib/sms/*` con interfaz SmsProvider e implementaciones LabsMobile (primario) y Twilio (fallback)**,
-So that **puedo cambiar de proveedor por feature flag sin reescribir lógica de envío de OTP**.
+**Status:** Diferida a Fase 2. `lib/sms/*` permanece como stubs en el repo. Se activará si en piloto aparecen clientes sin Gmail.
 
-**Acceptance Criteria:**
-
-**Given** existen las credenciales de LabsMobile y Twilio en env vars
-**When** llamo `sendOTP(celular)` desde `lib/sms/send-otp.ts`
-**Then** envía el OTP via LabsMobile por defecto
-**And** si LabsMobile responde error o feature flag `USE_TWILIO=true`, hace fallback automático a Twilio
-**And** el costo y proveedor usado se loggea (sin loggear el OTP en sí)
-**And** se respeta el rate limiting de Upstash (Story 1.4)
-
-### Story 3.2: Registro y Login del Cliente con OTP (FR-1, FR-2)
+### Story 3.2: Auth del Cliente con Google OAuth + captura de celular en perfil (FR-1, FR-2 — REVISADA D-21)
 
 As a **Cliente nuevo o existente**,
-I want **registrarme con mi nombre + celular o iniciar sesión solo con mi celular, recibir un OTP por SMS y confirmarlo**,
-So that **accedo a la app sin tener que recordar una contraseña**.
+I want **autenticarme con un click usando mi cuenta de Google**,
+So that **accedo a la app sin tener que crear cuenta nueva ni esperar OTP**.
 
 **Acceptance Criteria:**
 
-**Given** estoy en `/auth/registro-cliente` o `/auth/login`
-**When** ingreso un celular válido (10 dígitos colombianos) y nombre (solo registro)
-**Then** la app envía OTP de 6 dígitos vía `lib/sms/send-otp.ts`
-**And** soy redirigido a `/auth/verificar-otp` donde ingreso el código
-**And** si el OTP es correcto, soy autenticado y redirigido a `/cliente`
-**And** si el OTP expira (>5 min) o se ingresa mal 3 veces, debo solicitar uno nuevo
+**Given** estoy en `/auth/login`
+**When** hago click en "Continuar con Google"
+**Then** soy redirigido al flujo OAuth de Google
+**And** al autorizar, soy redirigido al callback `/auth/callback`
+**And** Supabase crea un registro en `auth.users` con mi email de Google
+**And** el Auth Hook setea `is_platform_admin: false` (a menos que esté en platform_admins) y NO setea `tenant_id` (el Cliente no es de un Comercio)
+**And** soy redirigido a `/cliente` con sesión activa
+
+**Given** soy Cliente nuevo (primera vez que entro)
+**When** intento confirmar mi primer Pedido (Story 3.7)
+**Then** la app verifica si tengo celular registrado en mi perfil
+**And** si NO tengo, soy bloqueado y redirigido a `/cliente/cuenta/celular` con form para ingresarlo
+**And** valido el formato (10 dígitos colombianos)
+**And** una vez guardado, regreso al flujo de checkout
+**And** el celular se guarda en una columna `telefono` en mi perfil (tabla nueva `perfiles_cliente` o columna en auth.users.user_metadata)
 **And** la sesión persiste 90 días o hasta logout
-**And** un mismo celular NO puede crear 2 cuentas (validación en registro)
-**And** el formulario de registro tiene checkbox Habeas Data (Story 1.8)
+**And** veo checkbox Habeas Data al primer login (Story 1.8)
 
 ### Story 3.3: Página principal del Cliente con lista de Comercios (FR-8)
 

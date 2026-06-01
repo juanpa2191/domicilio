@@ -1,11 +1,13 @@
-import { SignUpForm } from "@/components/sign-up-form";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <SignUpForm />
-      </div>
-    </div>
-  );
+/**
+ * No hay sign-up público (D-21).
+ * - Clientes se autentican con Google OAuth (cuenta se crea sola en el primer login).
+ * - Usuarios de Comercio reciben credenciales del admin del Comercio.
+ * - Admin (juanpis) es invitado manualmente.
+ *
+ * Redirigimos a login.
+ */
+export default function SignUpPage() {
+  redirect("/auth/login");
 }

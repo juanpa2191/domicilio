@@ -563,7 +563,7 @@ El admin ve métricas agregadas por Comercio: número de Pedidos en últimos 7/3
 
 ### Decisiones confirmadas en Discovery
 
-- ✅ **D-A1 (§4.1, ref D-14):** Autenticación del Cliente vía OTP por SMS. Validar costo real en semana 1; si excede $200 COP/SMS, evaluar WhatsApp OTP o email/contraseña.
+- ✅ **D-A1 (§4.1, ref D-14):** ~~Autenticación del Cliente vía OTP por SMS.~~ **REVISADA por D-21 (2026-05-31):** Cliente autentica vía **Google OAuth**. OTP SMS diferido a Fase 2 si surge la necesidad de soportar usuarios sin Gmail.
 - ✅ **D-A2 (§6.1, ref D-15):** PWA confirmado como form-factor. Soporte mínimo Android 9+ / iOS 16.4+.
 - ✅ **D-A3 (§4.4 FR-16, ref D-16):** Cancelación de Pedido post-validación de pago: devolución manual fuera de app, comunicación directa Comercio→Cliente.
 - ✅ **D-A4 (§4.9 FR-31, ref D-17):** Cobro de la Suscripción es manual fuera de app en MVP. Pasarela (Wompi/ePayco) se evalúa cuando haya 5+ comercios pagando.
