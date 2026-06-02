@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Button } from "@/components/ui/button";
+import { EstadoSuscripcionBadge } from "@/components/domicilios/estado-suscripcion-badge";
+import type { Database } from "@/types/supabase";
+
+type EstadoSuscripcion = Database["public"]["Enums"]["estado_suscripcion"];
 
 /**
- * Lista de Comercios para admin.
- * Usa admin client (service_role) — la auth check se hace en app/admin/layout.tsx.
- * Esto evita depender del Auth Hook JWT claim y es más robusto.
+ * Lista de Comercios para admin — Story 1.6 — FR-31.
+ * Cada fila es clickable y lleva al detalle.
  */
 export default async function ComerciosPage() {
   const admin = createAdminClient();
@@ -39,13 +42,25 @@ export default async function ComerciosPage() {
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium">Dirección</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium">Suscripción</th>
                 <th className="px-4 py-3 font-medium">Fin período gratis</th>
+                <th className="w-12"></th>
               </tr>
             </thead>
             <tbody className="divide-y text-sm">
               {comercios.map((c) => (
-                <tr key={c.id}>
-                  <td className="px-4 py-3 font-medium">{c.nombre}</td>
+                <tr
+                  key={c.id}
+                  className="hover:bg-muted/30 transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium">
+                    <Link
+                      href={`/admin/comercios/${c.id}`}
+                      className="hover:text-primary hover:underline"
+                    >
+                      {c.nombre}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{c.direccion}</td>
                   <td className="px-4 py-3">
                     {c.activo ? (
@@ -54,8 +69,21 @@ export default async function ComerciosPage() {
                       <span className="text-muted-foreground">Inactivo</span>
                     )}
                   </td>
+                  <td className="px-4 py-3">
+                    <EstadoSuscripcionBadge
+                      estado={c.estado_suscripcion as EstadoSuscripcion}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {new Date(c.fecha_fin_gratis).toLocaleDateString("es-CO")}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/comercios/${c.id}`}
+                      className="text-primary hover:underline"
+                    >
+                      →
+                    </Link>
                   </td>
                 </tr>
               ))}

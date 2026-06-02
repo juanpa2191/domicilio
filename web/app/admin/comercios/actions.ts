@@ -71,7 +71,10 @@ export async function crearComercio(
       email: data.email_mostrador,
       password: tempPassword,
       email_confirm: true,
-      user_metadata: { full_name: data.nombre_mostrador },
+      user_metadata: {
+        full_name: data.nombre_mostrador,
+        must_change_password: true,
+      },
     });
     if (createErr) throw createErr;
     if (!created.user) throw new Error("No se pudo crear el usuario");
@@ -145,4 +148,94 @@ function generateTempPassword(): string {
   // 12 caracteres alfanuméricos. Cumple con la política mínima de Supabase Auth.
   const bytes = crypto.getRandomValues(new Uint8Array(9));
   return btoa(String.fromCharCode(...bytes)).replace(/[+/=]/g, "").slice(0, 12);
+}
+
+/**
+ * Verifica que el caller sea platform_admin.
+ * Throw si no autorizado. Llamar al inicio de cada Server Action admin-only.
+ */
+async function requirePlatformAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autenticado");
+  const { data: adminRow } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!adminRow) throw new Error("No autorizado");
+}
+
+/**
+ * Activa o desactiva un Comercio. Story 1.6 — FR-31.
+ * Un Comercio inactivo no aparece para los clientes ni recibe pedidos nuevos.
+ */
+export async function toggleComercioActivo(
+  comercioId: string,
+  activo: boolean
+): Promise<ActionResult<{ id: string; activo: boolean }>> {
+  try {
+    await requirePlatformAdmin();
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("comercios")
+      .update({ activo })
+      .eq("id", comercioId)
+      .select("id, activo")
+      .single();
+    if (error) throw error;
+
+    revalidatePath("/admin/comercios");
+    revalidatePath(`/admin/comercios/${comercioId}`);
+    revalidatePath("/admin");
+    return { success: true, data };
+  } catch (e) {
+    captureException(e, { tags: { action: "toggleComercioActivo", comercioId } });
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "No se pudo actualizar el Comercio",
+    };
+  }
+}
+
+type EstadoSuscripcion = "periodo_gratis" | "al_dia" | "pendiente" | "atrasado";
+
+/**
+ * Marca el estado de la suscripción del Comercio. Story 1.6 — FR-31.
+ * Útil cuando juanpis cobra manualmente (D-A4) y necesita registrar el cambio.
+ */
+export async function marcarEstadoSuscripcion(
+  comercioId: string,
+  estado: EstadoSuscripcion
+): Promise<ActionResult<{ id: string; estado_suscripcion: EstadoSuscripcion }>> {
+  try {
+    await requirePlatformAdmin();
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("comercios")
+      .update({ estado_suscripcion: estado })
+      .eq("id", comercioId)
+      .select("id, estado_suscripcion")
+      .single();
+    if (error) throw error;
+
+    revalidatePath("/admin/comercios");
+    revalidatePath(`/admin/comercios/${comercioId}`);
+    return {
+      success: true,
+      data: { id: data.id, estado_suscripcion: data.estado_suscripcion as EstadoSuscripcion },
+    };
+  } catch (e) {
+    captureException(e, {
+      tags: { action: "marcarEstadoSuscripcion", comercioId, estado },
+    });
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "No se pudo actualizar el estado",
+    };
+  }
 }

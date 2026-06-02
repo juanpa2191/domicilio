@@ -49,6 +49,12 @@ export function LoginForm({
       if (error) throw error;
       if (!data.user) throw new Error("No se pudo obtener la sesión.");
 
+      // Si es primer login (password temporal) → forzar cambio
+      if (data.user.user_metadata?.must_change_password === true) {
+        router.push("/auth/cambiar-password");
+        return;
+      }
+
       const surface = await getUserSurface(supabase, data.user.id);
       router.push(SURFACE_PATHS[surface]);
     } catch (error) {
