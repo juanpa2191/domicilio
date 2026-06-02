@@ -41,7 +41,7 @@ export default async function MostradorLayout({
               <Link href="/mostrador/catalogo">Catálogo</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/mostrador/configuracion/usuarios">Usuarios</Link>
+              <Link href="/mostrador/domiciliarios">Domiciliarios</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
               <Link href="/mostrador/configuracion">Configuración</Link>

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { HORARIO_VACIO, type Horario } from "@/lib/domicilios/schemas/comercio";
 import { ConfiguracionForm } from "./_components/configuracion-form";
+import { ConfigTabs } from "./_components/config-tabs";
 
 /**
  * Configuración del Comercio del Mostrador.
@@ -49,10 +50,8 @@ export default async function ConfiguracionPage() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-bold">Configuración del Comercio</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Estos datos se ven en la app del Cliente al elegir un Comercio para pedir.
-      </p>
+      <h1 className="mb-6 text-2xl font-bold">Configuración del Comercio</h1>
+      <ConfigTabs />
 
       <ConfiguracionForm
         comercioId={mostradorRow.comercio_id}

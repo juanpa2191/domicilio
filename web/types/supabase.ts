@@ -7,13 +7,87 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      adiciones_estructuradas: {
+        Row: {
+          created_at: string
+          id: string
+          nombre: string
+          precio_adicional: number
+          producto_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nombre: string
+          precio_adicional: number
+          producto_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nombre?: string
+          precio_adicional?: number
+          producto_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "adiciones_estructuradas_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domiciliarios: {
+        Row: {
+          activo: boolean
+          celular: string
+          comercio_id: string
+          created_at: string
+          email: string | null
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          celular: string
+          comercio_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          celular?: string
+          comercio_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domiciliarios_comercio_id_fkey"
+            columns: ["comercio_id"]
+            isOneToOne: false
+            referencedRelation: "comercios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comercios: {
         Row: {
           activo: boolean
@@ -79,6 +153,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      productos: {
+        Row: {
+          comercio_id: string
+          created_at: string
+          descripcion: string | null
+          disponible: boolean
+          foto_url: string | null
+          id: string
+          nombre: string
+          precio_cop: number
+          updated_at: string
+        }
+        Insert: {
+          comercio_id: string
+          created_at?: string
+          descripcion?: string | null
+          disponible?: boolean
+          foto_url?: string | null
+          id?: string
+          nombre: string
+          precio_cop: number
+          updated_at?: string
+        }
+        Update: {
+          comercio_id?: string
+          created_at?: string
+          descripcion?: string | null
+          disponible?: boolean
+          foto_url?: string | null
+          id?: string
+          nombre?: string
+          precio_cop?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productos_comercio_id_fkey"
+            columns: ["comercio_id"]
+            isOneToOne: false
+            referencedRelation: "comercios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       usuarios_comercio: {
         Row: {

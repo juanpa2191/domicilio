@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CrearCocinaForm } from "./_components/crear-cocina-form";
+import { ConfigTabs } from "../_components/config-tabs";
 
 /**
  * Lista de usuarios del Comercio del Mostrador.
@@ -41,7 +42,8 @@ export default async function UsuariosPage() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-bold">Usuarios del Comercio</h1>
+      <h1 className="mb-6 text-2xl font-bold">Configuración del Comercio</h1>
+      <ConfigTabs />
       <p className="mb-6 text-sm text-muted-foreground">
         Gestiona los usuarios Cocina que pueden acceder a su vista de Tiquetes.
       </p>
