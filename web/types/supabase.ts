@@ -47,47 +47,6 @@ export type Database = {
           },
         ]
       }
-      domiciliarios: {
-        Row: {
-          activo: boolean
-          celular: string
-          comercio_id: string
-          created_at: string
-          email: string | null
-          id: string
-          nombre: string
-          updated_at: string
-        }
-        Insert: {
-          activo?: boolean
-          celular: string
-          comercio_id: string
-          created_at?: string
-          email?: string | null
-          id?: string
-          nombre: string
-          updated_at?: string
-        }
-        Update: {
-          activo?: boolean
-          celular?: string
-          comercio_id?: string
-          created_at?: string
-          email?: string | null
-          id?: string
-          nombre?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "domiciliarios_comercio_id_fkey"
-            columns: ["comercio_id"]
-            isOneToOne: false
-            referencedRelation: "comercios"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       comercios: {
         Row: {
           activo: boolean
@@ -133,6 +92,234 @@ export type Database = {
           id?: string
           nombre?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      comprobantes_pago: {
+        Row: {
+          created_at: string
+          id: string
+          pedido_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pedido_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pedido_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comprobantes_pago_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: true
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direcciones_guardadas: {
+        Row: {
+          alias: string | null
+          created_at: string
+          direccion: string
+          es_default: boolean
+          id: string
+          user_id: string
+        }
+        Insert: {
+          alias?: string | null
+          created_at?: string
+          direccion: string
+          es_default?: boolean
+          id?: string
+          user_id: string
+        }
+        Update: {
+          alias?: string | null
+          created_at?: string
+          direccion?: string
+          es_default?: boolean
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      domiciliarios: {
+        Row: {
+          activo: boolean
+          celular: string
+          comercio_id: string
+          created_at: string
+          email: string | null
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          celular: string
+          comercio_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          celular?: string
+          comercio_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domiciliarios_comercio_id_fkey"
+            columns: ["comercio_id"]
+            isOneToOne: false
+            referencedRelation: "comercios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items_pedido: {
+        Row: {
+          adiciones_seleccionadas: Json
+          cantidad: number
+          created_at: string
+          id: string
+          nombre_snapshot: string
+          pedido_id: string
+          precio_unitario_cop: number
+          producto_id: string
+          subtotal_cop: number
+        }
+        Insert: {
+          adiciones_seleccionadas?: Json
+          cantidad: number
+          created_at?: string
+          id?: string
+          nombre_snapshot: string
+          pedido_id: string
+          precio_unitario_cop: number
+          producto_id: string
+          subtotal_cop: number
+        }
+        Update: {
+          adiciones_seleccionadas?: Json
+          cantidad?: number
+          created_at?: string
+          id?: string
+          nombre_snapshot?: string
+          pedido_id?: string
+          precio_unitario_cop?: number
+          producto_id?: string
+          subtotal_cop?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_pedido_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "items_pedido_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedidos: {
+        Row: {
+          adicion_libre: string | null
+          cliente_id: string
+          comercio_id: string
+          created_at: string
+          direccion_entrega: Json | null
+          estado: Database["public"]["Enums"]["estado_pedido"]
+          forma_pago: Database["public"]["Enums"]["forma_pago"]
+          id: string
+          modalidad: Database["public"]["Enums"]["modalidad_entrega"]
+          motivo_cancelacion: string | null
+          sequence_number: number
+          total_cop: number
+          updated_at: string
+        }
+        Insert: {
+          adicion_libre?: string | null
+          cliente_id: string
+          comercio_id: string
+          created_at?: string
+          direccion_entrega?: Json | null
+          estado?: Database["public"]["Enums"]["estado_pedido"]
+          forma_pago: Database["public"]["Enums"]["forma_pago"]
+          id?: string
+          modalidad: Database["public"]["Enums"]["modalidad_entrega"]
+          motivo_cancelacion?: string | null
+          sequence_number?: number
+          total_cop: number
+          updated_at?: string
+        }
+        Update: {
+          adicion_libre?: string | null
+          cliente_id?: string
+          comercio_id?: string
+          created_at?: string
+          direccion_entrega?: Json | null
+          estado?: Database["public"]["Enums"]["estado_pedido"]
+          forma_pago?: Database["public"]["Enums"]["forma_pago"]
+          id?: string
+          modalidad?: Database["public"]["Enums"]["modalidad_entrega"]
+          motivo_cancelacion?: string | null
+          sequence_number?: number
+          total_cop?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_comercio_id_fkey"
+            columns: ["comercio_id"]
+            isOneToOne: false
+            referencedRelation: "comercios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      perfiles_cliente: {
+        Row: {
+          celular: string | null
+          created_at: string
+          nombre: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          celular?: string | null
+          created_at?: string
+          nombre: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          celular?: string | null
+          created_at?: string
+          nombre?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

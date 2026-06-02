@@ -46,7 +46,7 @@ export function ProductoForm({
     resolver: zodResolver(ProductoSchema),
     defaultValues: {
       ...initial,
-      descripcion: initial.descripcion ?? "",
+      descripcion: initial.descripcion ?? null,
     },
   });
 

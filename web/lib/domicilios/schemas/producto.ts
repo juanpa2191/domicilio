@@ -12,21 +12,14 @@ export const ProductoSchema = z.object({
   descripcion: z
     .string()
     .max(200, "Máximo 200 caracteres")
-    .nullable()
-    .optional()
-    .transform((v) => (v && v.trim() !== "" ? v.trim() : null)),
+    .nullable(),
   precio_cop: z
     .number({ message: "Ingresa un precio en pesos" })
     .int("Solo números enteros (sin centavos)")
     .min(0, "Precio inválido")
     .max(10_000_000, "Precio inválido"),
-  foto_url: z
-    .string()
-    .url("URL inválida")
-    .nullable()
-    .optional()
-    .transform((v) => v ?? null),
-  disponible: z.boolean().default(true),
+  foto_url: z.string().url("URL inválida").nullable(),
+  disponible: z.boolean(),
 });
 
 export type ProductoInput = z.infer<typeof ProductoSchema>;

@@ -4,7 +4,9 @@
  * Después determina el surface destino según el rol del usuario y redirige.
  */
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getUserSurface, type SurfaceDestino } from "@/lib/domicilios/auth";
+import { ensurePerfilCliente } from "@/lib/domicilios/perfil-cliente";
 import { NextResponse, type NextRequest } from "next/server";
 
 const SURFACE_PATHS: Record<SurfaceDestino, string> = {
@@ -48,8 +50,17 @@ export async function GET(request: NextRequest) {
 
   const surface = await getUserSurface(supabase, user.id);
 
-  // Cliente que entra por primera vez vía Google → forzar aceptación Habeas Data (Story 1.8)
+  // Cliente que entra por primera vez vía Google
   if (surface === "cliente") {
+    // 1. Crear perfil si no existe (Story 3.2)
+    const nombre =
+      user.user_metadata?.full_name ??
+      user.user_metadata?.name ??
+      user.email ??
+      "Cliente";
+    await ensurePerfilCliente(createAdminClient(), user.id, nombre);
+
+    // 2. Forzar aceptación Habeas Data si no la ha dado (Story 1.8)
     const accepted = user.user_metadata?.privacidad_aceptada === true;
     if (!accepted) {
       return NextResponse.redirect(`${origin}/aceptar-privacidad`);
