@@ -38,6 +38,7 @@ export function CheckoutForm({
   const [modalidad, setModalidad] = useState<Modalidad>("domicilio");
   const [direccion, setDireccion] = useState("");
   const [alias, setAlias] = useState("");
+  const [direccionError, setDireccionError] = useState<string | null>(null);
   const [formaPago, setFormaPago] = useState<FormaPago>("transferencia");
   const [isPending, startTransition] = useTransition();
 
@@ -63,10 +64,20 @@ export function CheckoutForm({
       router.push(`/cliente/cuenta/celular?next=${encodeURIComponent("/cliente/checkout")}`);
       return;
     }
-    if (modalidad === "domicilio" && direccion.trim().length < 5) {
-      toast.error("Necesitamos una dirección para entregarte.");
-      return;
+    if (modalidad === "domicilio") {
+      const trimmed = direccion.trim();
+      if (trimmed.length === 0) {
+        setDireccionError("Necesitamos una dirección para entregarte");
+        toast.error("Necesitamos una dirección para entregarte");
+        return;
+      }
+      if (trimmed.length < 5) {
+        setDireccionError("La dirección debe tener al menos 5 caracteres");
+        toast.error("La dirección debe tener al menos 5 caracteres");
+        return;
+      }
     }
+    setDireccionError(null);
 
     startTransition(async () => {
       const result = await crearPedido({
@@ -126,14 +137,28 @@ export function CheckoutForm({
       </Card>
 
       {modalidad === "domicilio" && (
-        <Card>
-          <CardContent className="flex flex-col gap-3 p-4">
-            <p className="text-sm font-medium">Dirección de entrega</p>
+        <Card className={direccionError ? "border-destructive" : ""}>
+          <CardContent className="flex flex-col gap-2 p-4">
+            <p className="text-sm font-medium">
+              Dirección de entrega <span className="text-destructive">*</span>
+            </p>
             <Input
               placeholder="Calle 12 #34-56, Barrio Centro"
               value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
+              onChange={(e) => {
+                setDireccion(e.target.value);
+                if (direccionError) setDireccionError(null);
+              }}
+              aria-invalid={!!direccionError}
+              className={
+                direccionError
+                  ? "border-destructive focus-visible:ring-destructive/30"
+                  : ""
+              }
             />
+            {direccionError && (
+              <p className="text-xs text-destructive">{direccionError}</p>
+            )}
             <Input
               placeholder="Alias (opcional: casa, trabajo...)"
               value={alias}
