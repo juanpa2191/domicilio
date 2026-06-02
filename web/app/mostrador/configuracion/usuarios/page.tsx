@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,6 +10,10 @@ import {
 } from "@/components/ui/card";
 import { CrearCocinaForm } from "./_components/crear-cocina-form";
 
+/**
+ * Lista de usuarios del Comercio del Mostrador.
+ * Usa admin client para listar todos los miembros (la auth check se hace en layout).
+ */
 export default async function UsuariosPage() {
   const supabase = await createClient();
   const {
@@ -16,7 +21,6 @@ export default async function UsuariosPage() {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  // Obtener comercio_id del Mostrador
   const { data: mostradorRow } = await supabase
     .from("usuarios_comercio")
     .select("comercio_id")
@@ -24,9 +28,10 @@ export default async function UsuariosPage() {
     .eq("activo", true)
     .maybeSingle();
 
+  const admin = createAdminClient();
   const usuarios = mostradorRow
     ? (
-        await supabase
+        await admin
           .from("usuarios_comercio")
           .select("id, nombre, rol, activo, created_at")
           .eq("comercio_id", mostradorRow.comercio_id)

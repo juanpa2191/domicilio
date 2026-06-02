@@ -47,5 +47,14 @@ export async function GET(request: NextRequest) {
   }
 
   const surface = await getUserSurface(supabase, user.id);
+
+  // Cliente que entra por primera vez vía Google → forzar aceptación Habeas Data (Story 1.8)
+  if (surface === "cliente") {
+    const accepted = user.user_metadata?.privacidad_aceptada === true;
+    if (!accepted) {
+      return NextResponse.redirect(`${origin}/aceptar-privacidad`);
+    }
+  }
+
   return NextResponse.redirect(`${origin}${SURFACE_PATHS[surface]}`);
 }

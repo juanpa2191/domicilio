@@ -75,7 +75,15 @@ export function LoginForm({
           <CardTitle className="text-2xl">Iniciar sesión</CardTitle>
           <CardDescription>
             Entra con tu cuenta de Google. Si eres parte de un Comercio,
-            usa tu cuenta de empleado.
+            usa tu cuenta de empleado. Al continuar aceptas nuestra{" "}
+            <Link
+              href="/privacidad"
+              target="_blank"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              política de privacidad
+            </Link>
+            .
           </CardDescription>
         </CardHeader>
         <CardContent>
