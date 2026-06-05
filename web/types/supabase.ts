@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -192,6 +194,44 @@ export type Database = {
           },
         ]
       }
+      historial_estado_pedido: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          estado_anterior: Database["public"]["Enums"]["estado_pedido"] | null
+          estado_nuevo: Database["public"]["Enums"]["estado_pedido"]
+          id: string
+          motivo: string | null
+          pedido_id: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          estado_anterior?: Database["public"]["Enums"]["estado_pedido"] | null
+          estado_nuevo: Database["public"]["Enums"]["estado_pedido"]
+          id?: string
+          motivo?: string | null
+          pedido_id: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          estado_anterior?: Database["public"]["Enums"]["estado_pedido"] | null
+          estado_nuevo?: Database["public"]["Enums"]["estado_pedido"]
+          id?: string
+          motivo?: string | null
+          pedido_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historial_estado_pedido_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items_pedido: {
         Row: {
           adiciones_seleccionadas: Json
@@ -239,6 +279,47 @@ export type Database = {
             columns: ["producto_id"]
             isOneToOne: false
             referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_audit: {
+        Row: {
+          accion: string
+          comprobante_sha256: string | null
+          comprobante_storage_path: string | null
+          created_at: string
+          id: string
+          motivo: string | null
+          pedido_id: string
+          validador_user_id: string
+        }
+        Insert: {
+          accion: string
+          comprobante_sha256?: string | null
+          comprobante_storage_path?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          pedido_id: string
+          validador_user_id: string
+        }
+        Update: {
+          accion?: string
+          comprobante_sha256?: string | null
+          comprobante_storage_path?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          pedido_id?: string
+          validador_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_audit_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
             referencedColumns: ["id"]
           },
         ]
