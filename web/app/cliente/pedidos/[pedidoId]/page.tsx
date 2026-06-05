@@ -3,18 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { formatearCOP } from "@/lib/domicilios/precio";
-
-const ESTADO_LABEL: Record<string, { label: string; tono: string }> = {
-  pendiente_pago: { label: "Pendiente de pago", tono: "bg-amber-100 text-amber-900 border-amber-200" },
-  validando_pago: { label: "Validando pago", tono: "bg-amber-100 text-amber-900 border-amber-200" },
-  en_cocina: { label: "En cocina", tono: "bg-orange-100 text-orange-900 border-orange-200" },
-  listo: { label: "Listo", tono: "bg-emerald-100 text-emerald-900 border-emerald-200" },
-  en_domicilio: { label: "En camino", tono: "bg-blue-100 text-blue-900 border-blue-200" },
-  entregado: { label: "Entregado", tono: "bg-slate-100 text-slate-700 border-slate-200" },
-  cancelado: { label: "Cancelado", tono: "bg-red-100 text-red-900 border-red-200" },
-};
+import { SeguimientoPedido } from "./_components/seguimiento-pedido";
 
 export default async function PedidoDetallePage({
   params,
@@ -49,8 +39,6 @@ export default async function PedidoDetallePage({
     .eq("id", pedido.comercio_id)
     .single();
 
-  const estadoMeta = ESTADO_LABEL[pedido.estado] ?? ESTADO_LABEL.pendiente_pago;
-
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -66,21 +54,16 @@ export default async function PedidoDetallePage({
         </p>
       </div>
 
-      <Badge className={`w-fit text-sm ${estadoMeta.tono}`}>{estadoMeta.label}</Badge>
-
-      {pedido.estado === "pendiente_pago" && (
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="flex flex-col gap-3 p-4 text-sm">
-            <p>Aún no has subido el comprobante de pago.</p>
-            <Link
-              href={`/cliente/pedidos/${pedido.id}/subir-comprobante`}
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Subir comprobante →
-            </Link>
-          </CardContent>
-        </Card>
-      )}
+      <SeguimientoPedido
+        pedidoId={pedido.id}
+        comercioId={pedido.comercio_id}
+        comercioNombre={comercio?.nombre ?? "El Comercio"}
+        inicial={{
+          estado: pedido.estado,
+          modalidad: pedido.modalidad,
+          motivo_cancelacion: pedido.motivo_cancelacion,
+        }}
+      />
 
       <Card>
         <CardContent className="flex flex-col gap-2 p-4">

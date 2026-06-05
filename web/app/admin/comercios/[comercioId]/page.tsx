@@ -11,6 +11,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EstadoSuscripcionBadge } from "@/components/domicilios/estado-suscripcion-badge";
 import { AccionesComercio } from "./_components/acciones-comercio";
+import { metricasPorComercio } from "@/lib/domicilios/admin-metrics";
+import { formatearCOP } from "@/lib/domicilios/precio";
 import type { Database } from "@/types/supabase";
 
 type EstadoSuscripcion = Database["public"]["Enums"]["estado_suscripcion"];
@@ -44,6 +46,8 @@ export default async function ComercioDetallePage({
     .select("id, nombre, rol, activo, created_at")
     .eq("comercio_id", comercioId)
     .order("created_at", { ascending: true });
+
+  const metricas = await metricasPorComercio(comercioId);
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -84,6 +88,55 @@ export default async function ComercioDetallePage({
           comercioNombre={comercio.nombre}
           activo={comercio.activo}
         />
+      </div>
+
+      <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Pedidos 7d
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{metricas.pedidos_7d}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Pedidos 30d
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{metricas.pedidos_30d}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Cancelados 30d
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p
+              className={`text-2xl font-bold ${
+                metricas.cancelados_30d > 0 ? "text-red-700" : "text-muted-foreground"
+              }`}
+            >
+              {metricas.cancelados_30d}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Valor 30d
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{formatearCOP(metricas.valor_total_30d)}</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

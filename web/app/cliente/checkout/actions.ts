@@ -56,6 +56,26 @@ export async function crearPedido(
 
   const admin = createAdminClient();
 
+  // Límite 3 pedidos activos simultáneos (Story 6.3)
+  const { count: activosCount } = await admin
+    .from("pedidos")
+    .select("id", { count: "exact", head: true })
+    .eq("cliente_id", user.id)
+    .in("estado", [
+      "pendiente_pago",
+      "validando_pago",
+      "en_cocina",
+      "listo",
+      "en_domicilio",
+    ]);
+  if ((activosCount ?? 0) >= 3) {
+    return {
+      success: false,
+      error:
+        "Ya tienes 3 pedidos activos. Espera a que se completen o cancelen para hacer uno nuevo.",
+    };
+  }
+
   // Validar Comercio activo y abierto
   const { data: comercio } = await admin
     .from("comercios")
