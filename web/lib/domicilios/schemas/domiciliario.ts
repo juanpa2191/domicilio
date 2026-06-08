@@ -7,14 +7,13 @@ export const DomiciliarioSchema = z.object({
   celular: z
     .string()
     .regex(CELULAR_REGEX, "Celular colombiano (10 dígitos comenzando con 3)"),
-  email: z
-    .string()
-    .email("Email inválido")
-    .toLowerCase()
-    .trim()
-    .nullable()
-    .optional()
-    .or(z.literal("").transform(() => null)),
+  email: z.string().email("Email inválido").toLowerCase().trim(),
 });
 
 export type DomiciliarioInput = z.infer<typeof DomiciliarioSchema>;
+
+export const NuevoDomiciliarioSchema = DomiciliarioSchema.extend({
+  password: z.string().min(6, "Mínimo 6 caracteres"),
+});
+
+export type NuevoDomiciliarioInput = z.infer<typeof NuevoDomiciliarioSchema>;

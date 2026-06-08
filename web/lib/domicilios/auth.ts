@@ -6,7 +6,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type RolUsuario = "mostrador" | "cocina" | "domiciliario";
-export type SurfaceDestino = "admin" | "mostrador" | "cocina" | "cliente";
+export type SurfaceDestino = "admin" | "mostrador" | "cocina" | "domiciliario" | "cliente";
 
 /**
  * Determina a qué surface debe ir un usuario autenticado según su rol.
@@ -34,6 +34,7 @@ export async function getUserSurface(
     .maybeSingle();
   if (uc?.rol === "mostrador") return "mostrador";
   if (uc?.rol === "cocina") return "cocina";
+  if (uc?.rol === "domiciliario") return "domiciliario";
 
   // 3. Default: Cliente (puede ser usuario nuevo de Google que aún no es admin ni de comercio).
   return "cliente";

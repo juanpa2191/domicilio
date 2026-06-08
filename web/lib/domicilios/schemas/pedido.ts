@@ -15,6 +15,8 @@ export const ItemPedidoSchema = z.object({
 export const DireccionEntregaSchema = z.object({
   alias: z.string().optional().nullable(),
   direccion: z.string().min(5, "Dirección requerida").max(300),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
 });
 
 export const ModalidadSchema = z.enum(["domicilio", "recoger_en_local"]);

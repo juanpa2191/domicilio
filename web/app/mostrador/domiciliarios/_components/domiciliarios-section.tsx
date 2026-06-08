@@ -26,7 +26,9 @@ import {
 } from "@/components/ui/card";
 import {
   DomiciliarioSchema,
+  NuevoDomiciliarioSchema,
   type DomiciliarioInput,
+  type NuevoDomiciliarioInput,
 } from "@/lib/domicilios/schemas/domiciliario";
 import {
   crearDomiciliario,
@@ -55,8 +57,8 @@ export function DomiciliariosSection({ initial }: { initial: Domiciliario[] }) {
             <span className="ml-2 text-xs text-muted-foreground">({items.length})</span>
           </CardTitle>
           <CardDescription>
-            Contactos para coordinar las entregas. Aún no tienen acceso a la app
-            (vista propia llega en Fase 2).
+            Cada Domiciliario tiene su propio acceso a la app desde{" "}
+            <code className="rounded bg-muted px-1 text-xs">/domiciliario</code>.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,36 +93,60 @@ export function DomiciliariosSection({ initial }: { initial: Domiciliario[] }) {
 }
 
 function NuevoDomiciliarioForm({ onCreated }: { onCreated: (d: Domiciliario) => void }) {
-  const form = useForm<DomiciliarioInput>({
-    resolver: zodResolver(DomiciliarioSchema),
-    defaultValues: { nombre: "", celular: "", email: null },
+  const form = useForm<NuevoDomiciliarioInput>({
+    resolver: zodResolver(NuevoDomiciliarioSchema),
+    defaultValues: { nombre: "", celular: "", email: "", password: "" },
   });
+  const [credenciales, setCredenciales] = useState<{ email: string; password: string } | null>(null);
 
-  async function onSubmit(values: DomiciliarioInput) {
+  async function onSubmit(values: NuevoDomiciliarioInput) {
     const result = await crearDomiciliario(values);
     if (!result.success) {
-      if (result.field) form.setError(result.field as keyof DomiciliarioInput, { message: result.error });
+      if (result.field)
+        form.setError(result.field as keyof NuevoDomiciliarioInput, { message: result.error });
       else toast.error(result.error);
       return;
     }
-    toast.success(`Domiciliario "${values.nombre}" creado`);
+    toast.success(`Domiciliario "${values.nombre}" creado con acceso a la app`);
     onCreated({
       id: result.data.id,
       nombre: values.nombre,
       celular: values.celular,
-      email: values.email ?? null,
+      email: values.email,
       activo: true,
     });
-    form.reset({ nombre: "", celular: "", email: null });
+    setCredenciales({ email: values.email, password: values.password });
+    form.reset({ nombre: "", celular: "", email: "", password: "" });
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Agregar Domiciliario</CardTitle>
-        <CardDescription>Necesitamos su nombre y celular como mínimo.</CardDescription>
+        <CardDescription>
+          Crea cuenta de acceso para que pueda ver sus entregas asignadas.
+        </CardDescription>
       </CardHeader>
       <CardContent>
+        {credenciales && (
+          <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm">
+            <p className="font-semibold text-emerald-900">Credenciales temporales:</p>
+            <p className="mt-1 font-mono text-xs">Email: {credenciales.email}</p>
+            <p className="font-mono text-xs">Password: {credenciales.password}</p>
+            <p className="mt-2 text-xs text-emerald-800">
+              Comparte estas credenciales con el Domiciliario. Le pediremos cambiar
+              el password al primer login.
+            </p>
+            <button
+              type="button"
+              onClick={() => setCredenciales(null)}
+              className="mt-2 text-xs underline"
+            >
+              Entendido, cerrar
+            </button>
+          </div>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <FormField
@@ -159,21 +185,29 @@ function NuevoDomiciliarioForm({ onCreated }: { onCreated: (d: Domiciliario) => 
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email (opcional)</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="pedro@example.com"
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                    />
+                    <Input type="email" placeholder="pedro@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password temporal</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="Mínimo 6 caracteres" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creando..." : "Agregar"}
+              {form.formState.isSubmitting ? "Creando..." : "Crear Domiciliario"}
             </Button>
           </form>
         </Form>
@@ -201,7 +235,7 @@ function DomiciliarioRow({
 
   const form = useForm<DomiciliarioInput>({
     resolver: zodResolver(DomiciliarioSchema),
-    defaultValues: { nombre: d.nombre, celular: d.celular, email: d.email },
+    defaultValues: { nombre: d.nombre, celular: d.celular, email: d.email ?? "" },
   });
 
   function handleToggle(value: boolean) {
@@ -222,7 +256,7 @@ function DomiciliarioRow({
       return;
     }
     toast.success("Domiciliario actualizado");
-    onUpdated({ ...d, ...values, email: values.email ?? null });
+    onUpdated({ ...d, ...values });
   }
 
   if (editing) {
@@ -261,13 +295,9 @@ function DomiciliarioRow({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email (opcional)</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                    />
+                    <Input type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

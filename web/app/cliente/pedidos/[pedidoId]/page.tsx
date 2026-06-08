@@ -62,7 +62,15 @@ export default async function PedidoDetallePage({
           estado: pedido.estado,
           modalidad: pedido.modalidad,
           motivo_cancelacion: pedido.motivo_cancelacion,
+          tracking_lat: pedido.tracking_lat,
+          tracking_lng: pedido.tracking_lng,
         }}
+        destinoLat={
+          (pedido.direccion_entrega as { lat?: number } | null)?.lat ?? null
+        }
+        destinoLng={
+          (pedido.direccion_entrega as { lng?: number } | null)?.lng ?? null
+        }
       />
 
       <Card>

@@ -13,6 +13,7 @@ const SURFACE_PATHS: Record<SurfaceDestino, string> = {
   admin: "/admin",
   mostrador: "/mostrador",
   cocina: "/cocina",
+  domiciliario: "/domiciliario",
   cliente: "/cliente",
 };
 

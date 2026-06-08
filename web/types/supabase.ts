@@ -133,6 +133,8 @@ export type Database = {
           direccion: string
           es_default: boolean
           id: string
+          lat: number | null
+          lng: number | null
           user_id: string
         }
         Insert: {
@@ -141,6 +143,8 @@ export type Database = {
           direccion: string
           es_default?: boolean
           id?: string
+          lat?: number | null
+          lng?: number | null
           user_id: string
         }
         Update: {
@@ -149,6 +153,8 @@ export type Database = {
           direccion?: string
           es_default?: boolean
           id?: string
+          lat?: number | null
+          lng?: number | null
           user_id?: string
         }
         Relationships: []
@@ -163,6 +169,7 @@ export type Database = {
           id: string
           nombre: string
           updated_at: string
+          user_id: string
         }
         Insert: {
           activo?: boolean
@@ -173,6 +180,7 @@ export type Database = {
           id?: string
           nombre: string
           updated_at?: string
+          user_id: string
         }
         Update: {
           activo?: boolean
@@ -183,6 +191,7 @@ export type Database = {
           id?: string
           nombre?: string
           updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -331,6 +340,7 @@ export type Database = {
           comercio_id: string
           created_at: string
           direccion_entrega: Json | null
+          domiciliario_id: string | null
           estado: Database["public"]["Enums"]["estado_pedido"]
           forma_pago: Database["public"]["Enums"]["forma_pago"]
           id: string
@@ -338,6 +348,9 @@ export type Database = {
           motivo_cancelacion: string | null
           sequence_number: number
           total_cop: number
+          tracking_lat: number | null
+          tracking_lng: number | null
+          tracking_updated_at: string | null
           updated_at: string
         }
         Insert: {
@@ -346,6 +359,7 @@ export type Database = {
           comercio_id: string
           created_at?: string
           direccion_entrega?: Json | null
+          domiciliario_id?: string | null
           estado?: Database["public"]["Enums"]["estado_pedido"]
           forma_pago: Database["public"]["Enums"]["forma_pago"]
           id?: string
@@ -353,6 +367,9 @@ export type Database = {
           motivo_cancelacion?: string | null
           sequence_number?: number
           total_cop: number
+          tracking_lat?: number | null
+          tracking_lng?: number | null
+          tracking_updated_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -361,6 +378,7 @@ export type Database = {
           comercio_id?: string
           created_at?: string
           direccion_entrega?: Json | null
+          domiciliario_id?: string | null
           estado?: Database["public"]["Enums"]["estado_pedido"]
           forma_pago?: Database["public"]["Enums"]["forma_pago"]
           id?: string
@@ -368,6 +386,9 @@ export type Database = {
           motivo_cancelacion?: string | null
           sequence_number?: number
           total_cop?: number
+          tracking_lat?: number | null
+          tracking_lng?: number | null
+          tracking_updated_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -376,6 +397,13 @@ export type Database = {
             columns: ["comercio_id"]
             isOneToOne: false
             referencedRelation: "comercios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_domiciliario_id_fkey"
+            columns: ["domiciliario_id"]
+            isOneToOne: false
+            referencedRelation: "domiciliarios"
             referencedColumns: ["id"]
           },
         ]

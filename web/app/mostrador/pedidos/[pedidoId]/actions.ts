@@ -233,9 +233,26 @@ export async function cambiarEstadoPedido(
       };
     }
 
+    const updatePayload: {
+      estado: EstadoPedido;
+      domiciliario_id?: string | null;
+      tracking_lat?: null;
+      tracking_lng?: null;
+      tracking_updated_at?: null;
+    } = { estado: nuevoEstado };
+    if (nuevoEstado === "en_domicilio" && domiciliarioId) {
+      updatePayload.domiciliario_id = domiciliarioId;
+    }
+    // Al entregar, limpiar tracking (privacidad)
+    if (nuevoEstado === "entregado") {
+      updatePayload.tracking_lat = null;
+      updatePayload.tracking_lng = null;
+      updatePayload.tracking_updated_at = null;
+    }
+
     const { error: updErr } = await admin
       .from("pedidos")
-      .update({ estado: nuevoEstado })
+      .update(updatePayload)
       .eq("id", pedidoId);
     if (updErr) throw updErr;
 

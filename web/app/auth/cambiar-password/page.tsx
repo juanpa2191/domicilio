@@ -7,6 +7,7 @@ const SURFACE_PATHS = {
   admin: "/admin",
   mostrador: "/mostrador",
   cocina: "/cocina",
+  domiciliario: "/domiciliario",
   cliente: "/cliente",
 } as const;
 

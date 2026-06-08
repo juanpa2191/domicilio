@@ -7,6 +7,7 @@ import {
   CrearPedidoSchema,
   type CrearPedidoInput,
 } from "@/lib/domicilios/schemas/pedido";
+import { geocodificarDireccion } from "@/lib/domicilios/geocoding";
 import type { ActionResult } from "@/types/domicilios";
 import { revalidatePath } from "next/cache";
 
@@ -135,6 +136,19 @@ export async function crearPedido(
   const estado_inicial: "pendiente_pago" | "validando_pago" =
     data.forma_pago === "transferencia" ? "pendiente_pago" : "validando_pago";
 
+  // Geocodificar dirección de entrega si hay (solo domicilio)
+  let direccionConCoords = data.direccion_entrega;
+  if (data.modalidad === "domicilio" && data.direccion_entrega?.direccion) {
+    const coords = await geocodificarDireccion(data.direccion_entrega.direccion);
+    if (coords) {
+      direccionConCoords = {
+        ...data.direccion_entrega,
+        lat: coords.lat,
+        lng: coords.lng,
+      };
+    }
+  }
+
   try {
     // Insertar Pedido
     const { data: pedidoNuevo, error: pedidoErr } = await admin
@@ -146,7 +160,7 @@ export async function crearPedido(
         forma_pago: data.forma_pago,
         estado: estado_inicial,
         adicion_libre: data.adicion_libre?.trim() || null,
-        direccion_entrega: data.direccion_entrega ?? null,
+        direccion_entrega: direccionConCoords ?? null,
         total_cop: total,
       })
       .select("id")
