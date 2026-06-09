@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUserRole } from "@/lib/domicilios/auth";
 import { Button } from "@/components/ui/button";
+import { PushBell } from "@/components/domicilios/push-bell";
 
 export default async function MostradorLayout({
   children,
@@ -46,6 +47,7 @@ export default async function MostradorLayout({
             <Button asChild variant="ghost" size="sm">
               <Link href="/mostrador/configuracion">Configuración</Link>
             </Button>
+            <PushBell />
           </nav>
         </div>
       </header>

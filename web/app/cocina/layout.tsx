@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserRole } from "@/lib/domicilios/auth";
 import { LogoutDiscreto } from "./_components/logout-discreto";
+import { PushBell } from "@/components/domicilios/push-bell";
 
 export default async function CocinaLayout({
   children,
@@ -29,7 +30,10 @@ export default async function CocinaLayout({
       <header className="border-b border-zinc-800 px-6 py-3">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight">Cocina</h1>
-          <LogoutDiscreto />
+          <div className="flex items-center gap-1">
+            <PushBell className="text-zinc-300" />
+            <LogoutDiscreto />
+          </div>
         </div>
       </header>
       <main className="flex-1 px-6 py-4">{children}</main>

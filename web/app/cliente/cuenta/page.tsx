@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PushBell } from "@/components/domicilios/push-bell";
+import { InstallPrompt } from "@/components/domicilios/install-prompt";
 
 export default async function CuentaPage() {
   const supabase = await createClient();
@@ -28,6 +30,8 @@ export default async function CuentaPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Mi cuenta</h1>
 
+      <InstallPrompt />
+
       <Card>
         <CardContent className="grid grid-cols-[110px_1fr] gap-2 p-4 text-sm">
           <span className="text-muted-foreground">Nombre</span>
@@ -38,6 +42,16 @@ export default async function CuentaPage() {
           <span>{perfil?.celular ?? <span className="text-muted-foreground italic">no configurado</span>}</span>
         </CardContent>
       </Card>
+
+      <div className="flex items-center justify-between rounded-md border p-3">
+        <div>
+          <p className="text-sm font-medium">Notificaciones</p>
+          <p className="text-xs text-muted-foreground">
+            Recibe avisos cuando cambie el estado de tu pedido.
+          </p>
+        </div>
+        <PushBell />
+      </div>
 
       <Button asChild variant="outline">
         <Link href="/cliente/cuenta/celular">

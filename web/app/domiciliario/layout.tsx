@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LogoutBoton } from "./_components/logout-boton";
+import { PushBell } from "@/components/domicilios/push-bell";
 
 export default async function DomiciliarioLayout({
   children,
@@ -36,7 +37,10 @@ export default async function DomiciliarioLayout({
             Mis entregas
             <span className="ml-2 text-xs text-muted-foreground">· {dom.nombre}</span>
           </Link>
-          <LogoutBoton />
+          <div className="flex items-center gap-1">
+            <PushBell />
+            <LogoutBoton />
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-4">{children}</main>
