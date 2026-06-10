@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/domicilios/logout-button";
 
 export default async function AdminLayout({
   children,
@@ -41,6 +42,7 @@ export default async function AdminLayout({
             <Button asChild variant="ghost" size="sm">
               <Link href="/admin/comercios">Comercios</Link>
             </Button>
+            <LogoutButton />
           </nav>
         </div>
       </header>
